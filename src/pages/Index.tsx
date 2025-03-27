@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -17,7 +16,7 @@ const Index = () => {
   }, []);
 
   const handleGetStarted = () => {
-    navigate("/login.html"); // Navigate to the login page
+    navigate("/login"); // Navigate to the login page
   };
 
   const containerVariants = {
