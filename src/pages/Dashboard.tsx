@@ -2,8 +2,13 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+import { 
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+  BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, Legend, RadarChart, 
+  PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+} from "recharts";
 import { Bell, LayoutDashboard, User, Settings, Search, Send, Phone, Mail, Calendar, Clock, DollarSign, MessageSquare } from "lucide-react";
+import { ChartContainer, ChartTooltipContent, ChartTooltip } from "@/components/ui/chart";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -26,6 +31,64 @@ const itemVariants = {
     }
   }
 };
+
+const revenueData = [
+  { month: 'Jan', value: 3200 },
+  { month: 'Feb', value: 3500 },
+  { month: 'Mar', value: 3700 },
+  { month: 'Apr', value: 3400 },
+  { month: 'May', value: 3800 },
+  { month: 'Jun', value: 4000 },
+  { month: 'Jul', value: 4200 },
+  { month: 'Aug', value: 4100 },
+  { month: 'Sep', value: 4300 },
+  { month: 'Oct', value: 4500 },
+  { month: 'Nov', value: 4600 },
+  { month: 'Dec', value: 4800 }
+];
+
+const churnReasonData = [
+  { name: 'Competitor', value: 35 },
+  { name: 'Price', value: 25 },
+  { name: 'Service', value: 18 },
+  { name: 'Other', value: 22 }
+];
+
+const monthlyActivityData = [
+  { month: 'Jan', value: 450 },
+  { month: 'Feb', value: 520 },
+  { month: 'Mar', value: 480 },
+  { month: 'Apr', value: 520 },
+  { month: 'May', value: 580 },
+  { month: 'Jun', value: 620 }
+];
+
+const customerSegmentData = [
+  { name: 'Active', value: 65 },
+  { name: 'At Risk', value: 15 },
+  { name: 'Inactive', value: 10 },
+  { name: 'New', value: 10 }
+];
+
+const retentionTrendData = [
+  { month: 'Jan', retained: 92, churned: 8 },
+  { month: 'Feb', retained: 91, churned: 9 },
+  { month: 'Mar', retained: 93, churned: 7 },
+  { month: 'Apr', retained: 94, churned: 6 },
+  { month: 'May', retained: 95, churned: 5 },
+  { month: 'Jun', retained: 93, churned: 7 }
+];
+
+const serviceMetricsData = [
+  { subject: 'Satisfaction', A: 85, fullMark: 100 },
+  { subject: 'Usage', A: 78, fullMark: 100 },
+  { subject: 'Support', A: 70, fullMark: 100 },
+  { subject: 'Features', A: 82, fullMark: 100 },
+  { subject: 'Reliability', A: 90, fullMark: 100 },
+  { subject: 'Value', A: 75, fullMark: 100 },
+];
+
+const COLORS = ['#8B5CF6', '#EC4899', '#F97316', '#2DD4BF', '#4ADE80', '#F43F5E'];
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("business");
@@ -184,7 +247,7 @@ const Dashboard = () => {
                 <CardContent>
                   <div className="h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart>
+                      <AreaChart data={revenueData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis />
@@ -218,8 +281,8 @@ const Dashboard = () => {
             <motion.div variants={itemVariants}>
               <Card>
                 <CardHeader>
-                  <CardTitle>Customer Retention</CardTitle>
-                  <CardDescription>Overall account status</CardDescription>
+                  <CardTitle>Customer Segments</CardTitle>
+                  <CardDescription>Distribution by segment</CardDescription>
                 </CardHeader>
                 <CardContent className="flex justify-center">
                   <div className="h-[200px] w-full">
@@ -232,16 +295,26 @@ const Dashboard = () => {
                           outerRadius={80}
                           paddingAngle={5}
                           dataKey="value"
+                          data={customerSegmentData}
                           labelLine={false}
                         >
+                          {customerSegmentData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
                         </Pie>
                         <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            borderRadius: '8px',
-                            border: '1px solid #e2e8f0'
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              return (
+                                <div className="bg-white p-2 border border-gray-200 rounded-md shadow-md">
+                                  <p className="font-medium">{`${payload[0].name}: ${payload[0].value}%`}</p>
+                                </div>
+                              );
+                            }
+                            return null;
                           }}
                         />
+                        <Legend />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -258,7 +331,7 @@ const Dashboard = () => {
                 <CardContent>
                   <div className="h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart>
+                      <BarChart data={monthlyActivityData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis />
@@ -276,6 +349,119 @@ const Dashboard = () => {
                           animationDuration={1500}
                         />
                       </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="md:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Churn Reasons</CardTitle>
+                  <CardDescription>Primary factors leading to customer loss</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={churnReasonData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={90}
+                          dataKey="value"
+                          label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        >
+                          {churnReasonData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value) => [`${value}%`, 'Percentage']}
+                          contentStyle={{ 
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0'
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="md:col-span-2 lg:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Retention Trend</CardTitle>
+                  <CardDescription>Month-by-month retention performance</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={retentionTrendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis />
+                        <Tooltip
+                          contentStyle={{ 
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0'
+                          }}
+                        />
+                        <Legend />
+                        <Line 
+                          type="monotone" 
+                          dataKey="retained" 
+                          stroke="#8B5CF6" 
+                          strokeWidth={2}
+                          activeDot={{ r: 8 }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="churned" 
+                          stroke="#F43F5E" 
+                          strokeWidth={2}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="md:col-span-2 lg:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Service Quality</CardTitle>
+                  <CardDescription>Key performance indicators</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart data={serviceMetricsData} outerRadius={90}>
+                        <PolarGrid />
+                        <PolarAngleAxis dataKey="subject" />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                        <Radar
+                          name="Performance"
+                          dataKey="A"
+                          stroke="#8B5CF6"
+                          fill="#8B5CF6"
+                          fillOpacity={0.6}
+                        />
+                        <Tooltip
+                          formatter={(value) => [`${value}%`, 'Score']}
+                          contentStyle={{ 
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0'
+                          }}
+                        />
+                      </RadarChart>
                     </ResponsiveContainer>
                   </div>
                 </CardContent>
