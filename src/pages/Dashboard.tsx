@@ -1,92 +1,37 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
-import { Bell, LayoutDashboard, User, Settings, Search, Send, Users, Phone, Mail, Calendar, Clock, DollarSign, MessageSquare } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Bell, LayoutDashboard, User, Settings, Search, Send, Phone, Mail, Calendar, Clock, DollarSign, MessageSquare } from "lucide-react";
 
-// Sample data for charts
-const performanceData = [
-  { month: 'Jan', value: 4000 },
-  { month: 'Feb', value: 3000 },
-  { month: 'Mar', value: 5000 },
-  { month: 'Apr', value: 2780 },
-  { month: 'May', value: 1890 },
-  { month: 'Jun', value: 2390 },
-  { month: 'Jul', value: 3490 },
-];
-
-const customerData = [
-  { name: 'Active', value: 65 },
-  { name: 'Inactive', value: 35 },
-];
-
-const COLORS = ['#8B5CF6', '#E5E7EB'];
-
-// Sample customer data
-const customers = [
-  {
-    id: "C78542396",
-    name: "Emily Johnson",
-    accountType: "Family Plan (3 lines)",
-    spend: "$89.99",
-    since: "March 2019",
-    contract: "Monthly",
-    payment: "Credit Card",
-    lastContact: "15 days ago",
-    churnRisk: 75,
-    riskLevel: "high",
-    riskFactors: [
-      "Recent service disruptions (2 outages)",
-      "Increasing usage beyond plan limits",
-      "Competitor promotion inquiry (last call)",
-      "Bill increases in last 3 months"
-    ],
-    recommendedOffers: [
-      { name: "Premium Data Upgrade", success: 84, bestMatch: true, description: "Upgrade to unlimited premium data for all lines at current price for 6 months." },
-      { name: "Family Plan Discount", success: 76, description: "15% monthly discount for next 12 months when adding a 4th line to family plan." },
-      { name: "Device Upgrade Credit", success: 68, description: "$150 device upgrade credit on any new phone purchase with 24-month contract." },
-      { name: "Premium Support Package", success: 62, description: "Free premium support and priority service for 12 months." }
-    ]
-  },
-  {
-    id: "C92345678",
-    name: "Michael Smith",
-    accountType: "Individual Premium",
-    spend: "$75.99",
-    since: "June 2020",
-    contract: "Annual",
-    payment: "Bank Transfer",
-    lastContact: "3 days ago",
-    churnRisk: 35,
-    riskLevel: "low",
-    riskFactors: [
-      "Minor billing query (resolved)",
-      "Occasional network issues in rural area",
-    ],
-    recommendedOffers: [
-      { name: "Rural Coverage Booster", success: 75, bestMatch: true, description: "Free signal booster device for improved coverage in rural areas." },
-      { name: "Loyalty Reward Points", success: 82, description: "2000 bonus reward points redeemable for accessories or bill credit." },
-      { name: "International Calling Bundle", success: 45, description: "Discounted international calling package for 6 months." }
-    ]
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: { 
+      staggerChildren: 0.1
+    }
   }
-];
+};
 
-// Sample churn reasons data for charts
-const churnReasonsData = [
-  { name: 'Service Quality', value: 35 },
-  { name: 'Competitor Offers', value: 25 },
-  { name: 'Price Increases', value: 20 },
-  { name: 'Poor Support', value: 15 },
-  { name: 'Other', value: 5 },
-];
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { 
+    y: 0, 
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 100
+    }
+  }
+};
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("business");
   const [searchCustomerId, setSearchCustomerId] = useState("");
-  const [selectedCustomer, setSelectedCustomer] = useState(customers[0]);
   const [isSearching, setIsSearching] = useState(false);
   const [predictionResult, setPredicitionResult] = useState(null);
   const [chatbotVisible, setChatbotVisible] = useState(false);
@@ -94,39 +39,12 @@ const Dashboard = () => {
     { sender: 'bot', text: 'Hello! I\'m your TeleGuard assistant. How can I help you with churn prediction or customer retention today?' }
   ]);
   const [messageInput, setMessageInput] = useState("");
-  
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.1
-      }
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100
-      }
-    }
-  };
 
   // Handle customer search
   const handleCustomerSearch = () => {
     setIsSearching(true);
     // Simulate search delay
     setTimeout(() => {
-      const customer = customers.find(c => c.id === searchCustomerId || c.name.toLowerCase().includes(searchCustomerId.toLowerCase()));
-      if (customer) {
-        setSelectedCustomer(customer);
-      }
       setIsSearching(false);
     }, 800);
   };
@@ -135,11 +53,11 @@ const Dashboard = () => {
   const handlePredictionSubmit = (e) => {
     e.preventDefault();
     
-    // Get form values (simplified for demo)
+    // Get form values
     const contractType = e.target.elements.contract?.value || "Month-to-month";
     const tenure = parseInt(e.target.elements.tenure?.value || "0");
     
-    // Calculate risk based on contract type and tenure (simplified logic)
+    // Calculate risk based on user inputs
     let risk = 0;
     if (contractType === "Month-to-month") {
       risk += 30;
@@ -187,21 +105,11 @@ const Dashboard = () => {
     setChatMessages([...chatMessages, { sender: 'user', text: messageInput }]);
     setMessageInput("");
     
-    // Simulate bot response after a short delay
+    // Simulate bot response
     setTimeout(() => {
       let botResponse = "I'm analyzing your request. How else can I assist you with customer retention?";
-      
-      // Simple keyword-based responses
-      if (messageInput.toLowerCase().includes("churn")) {
-        botResponse = "To reduce churn, we recommend focusing on service quality improvements and personalized offers based on usage patterns.";
-      } else if (messageInput.toLowerCase().includes("retention")) {
-        botResponse = "Our data shows that loyalty programs and proactive service issue resolution can improve retention by up to 25%.";
-      } else if (messageInput.toLowerCase().includes("offer") || messageInput.toLowerCase().includes("discount")) {
-        botResponse = "The most effective offers currently are data upgrades for high-usage customers and family plan discounts for single-line users.";
-      }
-      
       setChatMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
-    }, 1000);
+    }, 800);
   };
   
   return (
@@ -272,12 +180,11 @@ const Dashboard = () => {
                 <CardContent>
                   <div className="h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={performanceData}>
+                      <AreaChart>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis />
                         <Tooltip 
-                          formatter={(value) => [`$${value}`, 'Revenue']}
                           contentStyle={{ 
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
                             borderRadius: '8px',
@@ -315,7 +222,6 @@ const Dashboard = () => {
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={customerData}
                           cx="50%"
                           cy="50%"
                           innerRadius={60}
@@ -323,29 +229,9 @@ const Dashboard = () => {
                           paddingAngle={5}
                           dataKey="value"
                           labelLine={false}
-                          label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-                            const radius = innerRadius + (outerRadius - innerRadius) * 1.1;
-                            const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
-                            const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
-                            return (
-                              <text 
-                                x={x} 
-                                y={y} 
-                                fill="#888888" 
-                                textAnchor={x > cx ? 'start' : 'end'} 
-                                dominantBaseline="central"
-                              >
-                                {`${(percent * 100).toFixed(0)}%`}
-                              </text>
-                            );
-                          }}
                         >
-                          {customerData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
                         </Pie>
                         <Tooltip 
-                          formatter={(value) => [`${value}%`, 'Percentage']}
                           contentStyle={{ 
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
                             borderRadius: '8px',
@@ -368,12 +254,11 @@ const Dashboard = () => {
                 <CardContent>
                   <div className="h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={performanceData}>
+                      <BarChart>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis />
                         <Tooltip
-                          formatter={(value) => [`${value}`, 'Active Users']}
                           contentStyle={{ 
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
                             borderRadius: '8px',
@@ -451,8 +336,8 @@ const Dashboard = () => {
                       <User className="h-8 w-8 text-violet-600 dark:text-violet-300" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg">{selectedCustomer.name}</h3>
-                      <p className="text-sm text-muted-foreground">ID: {selectedCustomer.id}</p>
+                      <h3 className="font-semibold text-lg">Customer Name</h3>
+                      <p className="text-sm text-muted-foreground">ID: Customer ID</p>
                     </div>
                   </div>
                   
@@ -462,7 +347,7 @@ const Dashboard = () => {
                         <Phone className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground">Account Type</span>
                       </div>
-                      <span className="text-sm font-medium">{selectedCustomer.accountType}</span>
+                      <span className="text-sm font-medium">Account Type</span>
                     </div>
                     
                     <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-800 py-2">
@@ -470,7 +355,7 @@ const Dashboard = () => {
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground">Monthly Spend</span>
                       </div>
-                      <span className="text-sm font-medium">{selectedCustomer.spend}</span>
+                      <span className="text-sm font-medium">$0.00</span>
                     </div>
                     
                     <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-800 py-2">
@@ -478,7 +363,7 @@ const Dashboard = () => {
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground">Customer Since</span>
                       </div>
-                      <span className="text-sm font-medium">{selectedCustomer.since}</span>
+                      <span className="text-sm font-medium">Date</span>
                     </div>
                     
                     <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-800 py-2">
@@ -486,7 +371,7 @@ const Dashboard = () => {
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground">Contract Type</span>
                       </div>
-                      <span className="text-sm font-medium">{selectedCustomer.contract}</span>
+                      <span className="text-sm font-medium">Contract Type</span>
                     </div>
                     
                     <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-800 py-2">
@@ -494,7 +379,7 @@ const Dashboard = () => {
                         <Mail className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground">Payment Method</span>
                       </div>
-                      <span className="text-sm font-medium">{selectedCustomer.payment}</span>
+                      <span className="text-sm font-medium">Payment Method</span>
                     </div>
                     
                     <div className="flex justify-between items-center py-2">
@@ -502,7 +387,7 @@ const Dashboard = () => {
                         <MessageSquare className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground">Last Contact</span>
                       </div>
-                      <span className="text-sm font-medium">{selectedCustomer.lastContact}</span>
+                      <span className="text-sm font-medium">Last Contact</span>
                     </div>
                   </div>
                 </CardContent>
@@ -524,29 +409,35 @@ const Dashboard = () => {
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                         <path 
-                          className={`stroke-current ${selectedCustomer.riskLevel === 'high' ? 'text-red-500' : 'text-yellow-500'}`}
+                          className="stroke-current text-yellow-500"
                           strokeWidth="2" 
                           fill="none" 
-                          strokeDasharray={`${selectedCustomer.churnRisk}, 100`} 
+                          strokeDasharray="50, 100" 
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
-                        <text x="18" y="20.5" className="font-bold text-3xl" textAnchor="middle">{selectedCustomer.churnRisk}%</text>
+                        <text x="18" y="20.5" className="font-bold text-3xl" textAnchor="middle">50%</text>
                       </svg>
                     </div>
-                    <div className={`${selectedCustomer.riskLevel === 'high' ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-500'} px-4 py-2 rounded-md inline-block mt-4`}>
-                      <span className="font-medium capitalize">{selectedCustomer.riskLevel} Risk of Churn</span>
+                    <div className="bg-yellow-500/10 text-yellow-500 px-4 py-2 rounded-md inline-block mt-4">
+                      <span className="font-medium capitalize">Medium Risk of Churn</span>
                     </div>
                   </div>
                   
                   <div>
                     <h3 className="text-sm font-medium mb-3">Key Risk Factors:</h3>
                     <div className="space-y-3">
-                      {selectedCustomer.riskFactors.map((factor, index) => (
-                        <div key={index} className="flex items-center">
-                          <div className={`w-1 h-4 ${index < 3 ? 'bg-red-500' : 'bg-yellow-500'} mr-3`}></div>
-                          <span className="text-sm">{factor}</span>
-                        </div>
-                      ))}
+                      <div className="flex items-center">
+                        <div className="w-1 h-4 bg-yellow-500 mr-3"></div>
+                        <span className="text-sm">Risk Factor 1</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-1 h-4 bg-yellow-500 mr-3"></div>
+                        <span className="text-sm">Risk Factor 2</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-1 h-4 bg-green-500 mr-3"></div>
+                        <span className="text-sm">Risk Factor 3</span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -559,23 +450,32 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {selectedCustomer.recommendedOffers.map((offer, index) => (
-                      <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-violet-500 transition-colors cursor-pointer">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-medium">{offer.name}</h3>
-                          {offer.bestMatch && (
-                            <div className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded">Best Match</div>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-3">{offer.description}</p>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm">{offer.success}% success rate</span>
-                          <Button variant="default" size="sm" className="px-3 py-1 h-auto text-xs bg-violet-600 hover:bg-violet-700">
-                            Apply Offer
-                          </Button>
-                        </div>
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-violet-500 transition-colors cursor-pointer">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-medium">Offer Name</h3>
+                        <div className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded">Best Match</div>
                       </div>
-                    ))}
+                      <p className="text-sm text-muted-foreground mb-3">Offer description goes here.</p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">00% success rate</span>
+                        <Button variant="default" size="sm" className="px-3 py-1 h-auto text-xs bg-violet-600 hover:bg-violet-700">
+                          Apply Offer
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-violet-500 transition-colors cursor-pointer">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-medium">Offer Name</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">Offer description goes here.</p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">00% success rate</span>
+                        <Button variant="default" size="sm" className="px-3 py-1 h-auto text-xs bg-violet-600 hover:bg-violet-700">
+                          Apply Offer
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -635,7 +535,7 @@ const Dashboard = () => {
                     
                     <div>
                       <label htmlFor="monthly-charges" className="block text-sm font-medium mb-2">Monthly Charges ($)</label>
-                      <input type="number" id="monthly-charges" min="0" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" defaultValue="65" />
+                      <input type="number" id="monthly-charges" min="0" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" defaultValue="0" />
                     </div>
                     
                     <div>
