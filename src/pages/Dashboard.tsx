@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -401,8 +400,8 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="mb-8 text-center">
-                    <div className="relative inline-block">
-                      <svg className="w-36 h-36" viewBox="0 0 36 36">
+                    <div className="relative w-36 h-36 mx-auto">
+                      <svg className="w-full h-full" viewBox="0 0 36 36" preserveAspectRatio="xMidYMid meet">
                         <circle 
                           cx="18" 
                           cy="18" 
@@ -422,10 +421,10 @@ const Dashboard = () => {
                           strokeDashoffset="50.265"
                           transform="rotate(-90 18 18)"
                         />
-                        <text x="18" y="20.5" className="text-3xl font-bold" textAnchor="middle" dominantBaseline="central">50%</text>
+                        <text x="18" y="18" className="text-xl font-bold" textAnchor="middle" dominantBaseline="middle">50%</text>
                       </svg>
                     </div>
-                    <div className="bg-yellow-500/10 text-yellow-500 px-4 py-2 rounded-md inline-block mt-4">
+                    <div className="bg-yellow-500/10 text-yellow-500 px-4 py-2 rounded-md inline-block mt-2">
                       <span className="font-medium">Medium Risk of Churn</span>
                     </div>
                   </div>
@@ -614,8 +613,8 @@ const Dashboard = () => {
                   {predictionResult ? (
                     <>
                       <div className="text-center mb-8">
-                        <div className="relative inline-block">
-                          <svg className="w-36 h-36" viewBox="0 0 36 36">
+                        <div className="relative w-36 h-36 mx-auto">
+                          <svg className="w-full h-full" viewBox="0 0 36 36" preserveAspectRatio="xMidYMid meet">
                             <circle 
                               cx="18" 
                               cy="18" 
@@ -635,10 +634,10 @@ const Dashboard = () => {
                               strokeDashoffset={100.53 - (predictionResult.risk * 100.53 / 100)}
                               transform="rotate(-90 18 18)"
                             />
-                            <text x="18" y="20.5" className="text-3xl font-bold" textAnchor="middle" dominantBaseline="central">{predictionResult.risk}%</text>
+                            <text x="18" y="18" className="text-xl font-bold" textAnchor="middle" dominantBaseline="middle">{predictionResult.risk}%</text>
                           </svg>
                         </div>
-                        <div className={`${getRiskBgColor(predictionResult.riskLevel)} ${getRiskColor(predictionResult.riskLevel)} px-4 py-2 rounded-md inline-block mt-4`}>
+                        <div className={`${getRiskBgColor(predictionResult.riskLevel)} ${getRiskColor(predictionResult.riskLevel)} px-4 py-2 rounded-md inline-block mt-2`}>
                           <span className="font-medium capitalize">{predictionResult.riskLevel} Risk of Churn</span>
                         </div>
                       </div>
