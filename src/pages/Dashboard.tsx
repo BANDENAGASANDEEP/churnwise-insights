@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 import { Bell, LayoutDashboard, User, Settings, Search, Send, Phone, Mail, Calendar, Clock, DollarSign, MessageSquare } from "lucide-react";
 
-// Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: { 
@@ -40,24 +38,37 @@ const Dashboard = () => {
   ]);
   const [messageInput, setMessageInput] = useState("");
 
-  // Handle customer search
+  const getRiskColor = (riskLevel) => {
+    switch(riskLevel) {
+      case "high": return "text-red-500";
+      case "medium": return "text-yellow-500";
+      case "low": return "text-green-500";
+      default: return "text-yellow-500";
+    }
+  };
+
+  const getRiskBgColor = (riskLevel) => {
+    switch(riskLevel) {
+      case "high": return "bg-red-500/10";
+      case "medium": return "bg-yellow-500/10";
+      case "low": return "bg-green-500/10";
+      default: return "bg-yellow-500/10";
+    }
+  };
+
   const handleCustomerSearch = () => {
     setIsSearching(true);
-    // Simulate search delay
     setTimeout(() => {
       setIsSearching(false);
     }, 800);
   };
 
-  // Handle prediction form submission
   const handlePredictionSubmit = (e) => {
     e.preventDefault();
     
-    // Get form values
     const contractType = e.target.elements.contract?.value || "Month-to-month";
     const tenure = parseInt(e.target.elements.tenure?.value || "0");
     
-    // Calculate risk based on user inputs
     let risk = 0;
     if (contractType === "Month-to-month") {
       risk += 30;
@@ -66,13 +77,10 @@ const Dashboard = () => {
       risk += 20;
     }
     
-    // Random factor to vary results
     risk += Math.floor(Math.random() * 30);
     
-    // Cap risk between 0-100
     risk = Math.min(Math.max(risk, 0), 100);
     
-    // Determine risk level
     let riskLevel = "low";
     let riskColor = "green-500";
     
@@ -84,7 +92,6 @@ const Dashboard = () => {
       riskColor = "yellow-500";
     }
     
-    // Set prediction result
     setPredicitionResult({
       risk,
       riskLevel,
@@ -97,21 +104,18 @@ const Dashboard = () => {
     });
   };
 
-  // Handle sending chat message
   const handleSendMessage = () => {
     if (!messageInput.trim()) return;
     
-    // Add user message
     setChatMessages([...chatMessages, { sender: 'user', text: messageInput }]);
     setMessageInput("");
     
-    // Simulate bot response
     setTimeout(() => {
       let botResponse = "I'm analyzing your request. How else can I assist you with customer retention?";
       setChatMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
     }, 800);
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
@@ -287,7 +291,6 @@ const Dashboard = () => {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Customer Search */}
             <Card className="mb-8">
               <CardContent className="pt-6">
                 <div className="max-w-xl mx-auto">
@@ -318,9 +321,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
             
-            {/* Customer Profile */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Customer Info */}
               <Card>
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
@@ -393,7 +394,6 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
               
-              {/* Churn Risk */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-xl">Churn Risk Analysis</CardTitle>
@@ -419,7 +419,7 @@ const Dashboard = () => {
                       </svg>
                     </div>
                     <div className="bg-yellow-500/10 text-yellow-500 px-4 py-2 rounded-md inline-block mt-4">
-                      <span className="font-medium capitalize">Medium Risk of Churn</span>
+                      <span className="font-medium">Medium Risk of Churn</span>
                     </div>
                   </div>
                   
@@ -428,22 +428,21 @@ const Dashboard = () => {
                     <div className="space-y-3">
                       <div className="flex items-center">
                         <div className="w-1 h-4 bg-yellow-500 mr-3"></div>
-                        <span className="text-sm">Risk Factor 1</span>
+                        <span className="text-sm">Month-to-month contract</span>
                       </div>
                       <div className="flex items-center">
                         <div className="w-1 h-4 bg-yellow-500 mr-3"></div>
-                        <span className="text-sm">Risk Factor 2</span>
+                        <span className="text-sm">No online security</span>
                       </div>
                       <div className="flex items-center">
                         <div className="w-1 h-4 bg-green-500 mr-3"></div>
-                        <span className="text-sm">Risk Factor 3</span>
+                        <span className="text-sm">Good payment history</span>
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
               
-              {/* Retention Offers */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-xl">Recommended Retention Offers</CardTitle>
@@ -491,7 +490,6 @@ const Dashboard = () => {
             transition={{ duration: 0.3 }}
           >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Prediction Form */}
               <Card className="lg:col-span-2">
                 <CardHeader>
                   <CardTitle className="text-xl">Customer Data Input</CardTitle>
@@ -601,7 +599,6 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
               
-              {/* Prediction Results */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-xl">Prediction Results</CardTitle>
@@ -619,7 +616,7 @@ const Dashboard = () => {
                               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                             />
                             <path 
-                              className={`stroke-current text-${predictionResult.riskColor}`}
+                              className={`stroke-current ${predictionResult.riskLevel === "high" ? "text-red-500" : predictionResult.riskLevel === "medium" ? "text-yellow-500" : "text-green-500"}`}
                               strokeWidth="2" 
                               fill="none" 
                               strokeDasharray={`${predictionResult.risk}, 100`} 
@@ -628,7 +625,7 @@ const Dashboard = () => {
                             <text x="18" y="20.5" className="font-bold text-3xl" textAnchor="middle">{predictionResult.risk}%</text>
                           </svg>
                         </div>
-                        <div className={`bg-${predictionResult.riskColor}/10 text-${predictionResult.riskColor} px-4 py-2 rounded-md inline-block mt-4`}>
+                        <div className={`${getRiskBgColor(predictionResult.riskLevel)} ${getRiskColor(predictionResult.riskLevel)} px-4 py-2 rounded-md inline-block mt-4`}>
                           <span className="font-medium capitalize">{predictionResult.riskLevel} Risk of Churn</span>
                         </div>
                       </div>
@@ -639,7 +636,7 @@ const Dashboard = () => {
                           {predictionResult.factors.map((factor, index) => (
                             <div key={index} className="flex items-center">
                               <div 
-                                className={`w-1 h-4 ${factor.includes('No') || factor.includes('Month-to-month') ? 'bg-yellow-500' : 'bg-green-500'} mr-3`}
+                                className={`w-1 h-4 ${factor.includes('No') || factor.includes('Month-to-month') || factor.includes('Low') ? 'bg-yellow-500' : 'bg-green-500'} mr-3`}
                               ></div>
                               <span className="text-sm">{factor}</span>
                             </div>
@@ -674,7 +671,6 @@ const Dashboard = () => {
         )}
       </main>
       
-      {/* AI Chatbot */}
       <div className={`fixed bottom-6 right-6 z-50 ${chatbotVisible ? 'flex' : 'hidden'} flex-col w-80 md:w-96 rounded-lg shadow-xl overflow-hidden`}>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
