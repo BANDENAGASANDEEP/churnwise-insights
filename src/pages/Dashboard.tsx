@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -402,20 +403,26 @@ const Dashboard = () => {
                   <div className="mb-8 text-center">
                     <div className="relative inline-block">
                       <svg className="w-36 h-36" viewBox="0 0 36 36">
-                        <path 
+                        <circle 
+                          cx="18" 
+                          cy="18" 
+                          r="16" 
+                          fill="none" 
                           className="stroke-current text-gray-200" 
-                          strokeWidth="2" 
-                          fill="none" 
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          strokeWidth="2"
                         />
-                        <path 
-                          className="stroke-current text-yellow-500"
-                          strokeWidth="2" 
+                        <circle 
+                          cx="18" 
+                          cy="18" 
+                          r="16" 
                           fill="none" 
-                          strokeDasharray="50, 100" 
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          className="stroke-current text-yellow-500" 
+                          strokeWidth="2"
+                          strokeDasharray="100.53"
+                          strokeDashoffset="50.265"
+                          transform="rotate(-90 18 18)"
                         />
-                        <text x="18" y="20.5" className="font-bold text-3xl" textAnchor="middle">50%</text>
+                        <text x="18" y="20.5" className="text-3xl font-bold" textAnchor="middle" dominantBaseline="central">50%</text>
                       </svg>
                     </div>
                     <div className="bg-yellow-500/10 text-yellow-500 px-4 py-2 rounded-md inline-block mt-4">
@@ -609,20 +616,26 @@ const Dashboard = () => {
                       <div className="text-center mb-8">
                         <div className="relative inline-block">
                           <svg className="w-36 h-36" viewBox="0 0 36 36">
-                            <path 
+                            <circle 
+                              cx="18" 
+                              cy="18" 
+                              r="16" 
+                              fill="none" 
                               className="stroke-current text-gray-200" 
-                              strokeWidth="2" 
-                              fill="none" 
-                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                              strokeWidth="2"
                             />
-                            <path 
+                            <circle 
+                              cx="18" 
+                              cy="18" 
+                              r="16" 
+                              fill="none" 
                               className={`stroke-current ${predictionResult.riskLevel === "high" ? "text-red-500" : predictionResult.riskLevel === "medium" ? "text-yellow-500" : "text-green-500"}`}
-                              strokeWidth="2" 
-                              fill="none" 
-                              strokeDasharray={`${predictionResult.risk}, 100`} 
-                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                              strokeWidth="2"
+                              strokeDasharray="100.53"
+                              strokeDashoffset={100.53 - (predictionResult.risk * 100.53 / 100)}
+                              transform="rotate(-90 18 18)"
                             />
-                            <text x="18" y="20.5" className="font-bold text-3xl" textAnchor="middle">{predictionResult.risk}%</text>
+                            <text x="18" y="20.5" className="text-3xl font-bold" textAnchor="middle" dominantBaseline="central">{predictionResult.risk}%</text>
                           </svg>
                         </div>
                         <div className={`${getRiskBgColor(predictionResult.riskLevel)} ${getRiskColor(predictionResult.riskLevel)} px-4 py-2 rounded-md inline-block mt-4`}>
