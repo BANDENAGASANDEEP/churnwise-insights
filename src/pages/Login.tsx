@@ -5,18 +5,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
+import { authService } from "@/services/api";
+import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, password, rememberMe });
-    // In a real application, you would handle authentication here
-    navigate("/dashboard"); // Redirect to dashboard after login
+    setIsLoading(true);
+    
+    try {
+      await authService.login(email, password);
+      toast.success("Login successful");
+      navigate("/dashboard"); // Redirect to dashboard after login
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Invalid email or password");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -77,6 +89,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required 
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -101,6 +114,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required 
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -110,15 +124,17 @@ const Login = () => {
                 id="remember" 
                 checked={rememberMe}
                 onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                disabled={isLoading}
               />
               <Label htmlFor="remember" className="text-sm">Remember me</Label>
             </div>
             
             <button 
               type="submit" 
-              className="w-full bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-md transition-colors relative overflow-hidden"
+              className="w-full bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-md transition-colors relative overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed"
+              disabled={isLoading}
             >
-              <span className="relative z-10">Sign in</span>
+              <span className="relative z-10">{isLoading ? "Signing in..." : "Sign in"}</span>
             </button>
           </form>
           

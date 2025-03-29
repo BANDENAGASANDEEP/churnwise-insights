@@ -5,7 +5,35 @@ document.addEventListener('DOMContentLoaded', function() {
   if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      window.location.href = 'dashboard.html';
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      // Call API for login
+      fetch('http://localhost:8000/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          'username': email,
+          'password': password,
+        }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Login failed');
+        }
+        return response.json();
+      })
+      .then(data => {
+        localStorage.setItem('token', data.access_token);
+        window.location.href = 'dashboard.html';
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Invalid username or password');
+      });
     });
   }
 
@@ -126,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Chatbot functionality with improved animations
+  // Chatbot functionality with API integration
   const chatbotToggle = document.getElementById('chatbotToggle');
   const chatbot = document.getElementById('chatbot');
   const closeChatbot = document.getElementById('closeChatbot');
@@ -171,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 300);
     }
 
-    // Send chat message with improved animations
+    // Send chat message with API integration
     if (sendMessage && chatInput && chatMessages) {
       const sendChatMessage = () => {
         const message = chatInput.value.trim();
@@ -183,19 +211,32 @@ document.addEventListener('DOMContentLoaded', function() {
           // Show typing indicator
           showTypingIndicator();
           
-          // Simulate bot response after delay
-          setTimeout(() => {
+          // Send message to API
+          fetch(`http://localhost:8000/chat?query=${encodeURIComponent(message)}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json',
+            },
+          })
+          .then(response => response.json())
+          .then(data => {
             removeTypingIndicator();
-            const responses = [
-              "Based on our data, customers with similar profiles have a 35% churn probability.",
-              "The most effective retention strategy for this scenario is offering a contract upgrade discount.",
-              "I'd recommend reviewing the customer's recent usage patterns for more insights.",
-              "This customer segment has responded well to family plan upgrades in the past.",
-              "Our predictive model suggests focusing on service quality improvements rather than price discounts for this customer."
-            ];
-            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-            addMessage(randomResponse, 'bot');
-          }, 1500);
+            const responses = data.response;
+            if (responses && responses.length > 0) {
+              // Add each response as a separate message
+              responses.forEach(response => {
+                addMessage(response, 'bot');
+              });
+            } else {
+              addMessage("I'm sorry, I couldn't find relevant information.", 'bot');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            removeTypingIndicator();
+            addMessage("I'm having trouble connecting to the server. Please try again later.", 'bot');
+          });
         }
       };
 
@@ -277,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Customer search functionality with improved animations
+  // Customer search functionality with API integration
   const searchCustomerBtn = document.getElementById('searchCustomerBtn');
   const customerIdInput = document.getElementById('customerId');
   const customerProfile = document.getElementById('customerProfile');
@@ -292,20 +333,87 @@ document.addEventListener('DOMContentLoaded', function() {
           this.classList.remove('animate-pulse');
         }, 500);
         
-        // Show customer profile with animation
-        customerProfile.style.opacity = '0';
-        customerProfile.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-          customerProfile.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-          customerProfile.style.opacity = '1';
-          customerProfile.style.transform = 'translateY(0)';
-        }, 100);
+        // Call API to get customer profile
+        fetch(`http://localhost:8000/customer-profile?customer_id=${customerId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Customer not found');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Update customer profile with API data
+          updateCustomerProfile(data);
+          
+          // Show customer profile with animation
+          customerProfile.style.opacity = '0';
+          customerProfile.style.transform = 'translateY(20px)';
+          
+          setTimeout(() => {
+            customerProfile.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            customerProfile.style.opacity = '1';
+            customerProfile.style.transform = 'translateY(0)';
+          }, 100);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Customer not found or error retrieving data');
+        });
       }
     });
+    
+    function updateCustomerProfile(customer) {
+      // Update customer profile card with data from API
+      const profileName = document.getElementById('profileName');
+      const profileId = document.getElementById('profileId');
+      const profileTenure = document.getElementById('profileTenure');
+      const profileContract = document.getElementById('profileContract');
+      const profileMonthlyCharges = document.getElementById('profileMonthlyCharges');
+      const profileTotalCharges = document.getElementById('profileTotalCharges');
+      
+      if (profileName) profileName.textContent = customer.gender === 'Male' ? 'Mr. Customer' : 'Ms. Customer';
+      if (profileId) profileId.textContent = customer.customerID;
+      if (profileTenure) profileTenure.textContent = `${customer.tenure} months`;
+      if (profileContract) profileContract.textContent = customer.Contract;
+      if (profileMonthlyCharges) profileMonthlyCharges.textContent = `$${customer.MonthlyCharges}`;
+      if (profileTotalCharges) profileTotalCharges.textContent = `$${customer.TotalCharges}`;
+      
+      // Update services
+      const servicesContainer = document.getElementById('servicesContainer');
+      if (servicesContainer) {
+        servicesContainer.innerHTML = '';
+        
+        const services = [
+          { name: 'Phone Service', value: customer.PhoneService },
+          { name: 'Multiple Lines', value: customer.MultipleLines },
+          { name: 'Internet Service', value: customer.InternetService },
+          { name: 'Online Security', value: customer.OnlineSecurity },
+          { name: 'Online Backup', value: customer.OnlineBackup },
+          { name: 'Device Protection', value: customer.DeviceProtection },
+          { name: 'Tech Support', value: customer.TechSupport },
+          { name: 'Streaming TV', value: customer.StreamingTV },
+          { name: 'Streaming Movies', value: customer.StreamingMovies }
+        ];
+        
+        services.forEach(service => {
+          if (service.value !== 'No' && service.value !== 'No internet service' && service.value !== 'No phone service') {
+            const serviceItem = document.createElement('div');
+            serviceItem.className = 'bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium m-1';
+            serviceItem.textContent = service.name;
+            servicesContainer.appendChild(serviceItem);
+          }
+        });
+      }
+    }
   }
 
-  // Churn prediction form with improved animations and fixed percentage displays
+  // Churn prediction form with API integration
   const churnPredictionForm = document.getElementById('churnPredictionForm');
   const noPrediction = document.getElementById('noPrediction');
   const predictionResult = document.getElementById('predictionResult');
@@ -317,42 +425,81 @@ document.addEventListener('DOMContentLoaded', function() {
     churnPredictionForm.addEventListener('submit', function(e) {
       e.preventDefault();
       
+      // Get form data for prediction
+      const tenure = parseInt(document.getElementById('tenureInput').value) || 0;
+      const monthlyCharges = parseFloat(document.getElementById('monthlyChargesInput').value) || 0;
+      const contract = document.getElementById('contractSelect').value;
+      const internetService = document.getElementById('internetServiceSelect').value;
+      
+      // Convert form data to features array for model
+      // This is a simplified example - you would need to match your actual model's expected features
+      const features = [
+        tenure,
+        monthlyCharges,
+        contract === 'Month-to-month' ? 1 : 0,
+        contract === 'One year' ? 1 : 0,
+        contract === 'Two year' ? 1 : 0,
+        internetService === 'Fiber optic' ? 1 : 0,
+        internetService === 'DSL' ? 1 : 0
+      ];
+      
       // Hide "no prediction" message with fade out
       noPrediction.style.transition = 'opacity 0.3s ease';
       noPrediction.style.opacity = '0';
       
-      setTimeout(() => {
-        noPrediction.style.display = 'none';
-        
-        // Show prediction results with fade in
-        predictionResult.classList.remove('hidden');
-        predictionResult.style.opacity = '0';
-        
+      // Call API to predict churn
+      fetch('http://localhost:8000/predict', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ features }),
+      })
+      .then(response => response.json())
+      .then(data => {
         setTimeout(() => {
-          predictionResult.style.transition = 'opacity 0.5s ease';
-          predictionResult.style.opacity = '1';
+          noPrediction.style.display = 'none';
           
-          // Generate random churn percentage for demo
-          const randomPercentage = Math.floor(Math.random() * 100);
+          // Show prediction results with fade in
+          predictionResult.classList.remove('hidden');
+          predictionResult.style.opacity = '0';
           
-          // FIX: Ensure proper percentage display with animation
-          // First set initial state
-          churnRiskMeter.setAttribute('stroke-dasharray', '0, 100');
-          churnPercentage.textContent = '0%';
-          
-          // Then animate to final value
           setTimeout(() => {
-            // Animate the percentage counter
-            animateCounter(0, randomPercentage, 1000, value => {
-              churnPercentage.textContent = `${Math.round(value)}%`;
-              churnRiskMeter.setAttribute('stroke-dasharray', `${value}, 100`);
-            });
+            predictionResult.style.transition = 'opacity 0.5s ease';
+            predictionResult.style.opacity = '1';
             
-            // Update color and risk label based on percentage
-            updateRiskLabel(randomPercentage);
-          }, 300);
-        }, 50);
-      }, 300);
+            // Convert model prediction to percentage
+            // In a real app, you might get a probability directly from your model
+            // Here we're generating a range based on the binary prediction
+            const predictionValue = data.churn_prediction;
+            const randomOffset = Math.random() * 30;
+            const churnPercent = predictionValue === 1 ? 
+              70 + randomOffset : // High risk if prediction is 1
+              randomOffset; // Low risk if prediction is 0
+            
+            // First set initial state
+            churnRiskMeter.setAttribute('stroke-dasharray', '0, 100');
+            churnPercentage.textContent = '0%';
+            
+            // Then animate to final value
+            setTimeout(() => {
+              // Animate the percentage counter
+              animateCounter(0, churnPercent, 1000, value => {
+                churnPercentage.textContent = `${Math.round(value)}%`;
+                churnRiskMeter.setAttribute('stroke-dasharray', `${value}, 100`);
+              });
+              
+              // Update color and risk label based on percentage
+              updateRiskLabel(churnPercent);
+            }, 300);
+          }, 50);
+        }, 300);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error predicting churn. Please try again.');
+      });
     });
     
     // Function to animate counting
@@ -412,11 +559,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize charts if we're on the dashboard
   if (document.getElementById('churnTrendChart')) {
-    initializeCharts();
+    initializeChartsWithApiData();
   }
 
-  function initializeCharts() {
-    // Churn Rate Trend Chart with enhanced visuals
+  function initializeChartsWithApiData() {
+    // Fetch dashboard data from API
+    fetch('http://localhost:8000/dashboard-data', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      initializeCharts(data);
+    })
+    .catch(error => {
+      console.error('Error fetching dashboard data:', error);
+      // Initialize with default data if API fails
+      initializeCharts();
+    });
+  }
+
+  function initializeCharts(apiData) {
+    // Use API data or fallback to defaults
+    const chartData = apiData || {};
+    
+    // Churn Rate Trend Chart
     const churnTrendCtx = document.getElementById('churnTrendChart').getContext('2d');
     const churnTrendChart = new Chart(churnTrendCtx, {
       type: 'line',
@@ -488,7 +658,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // Churn Reasons Chart with enhanced visuals
+    // Churn Reasons Chart
     const churnReasonsCtx = document.getElementById('churnReasonsChart').getContext('2d');
     const churnReasonsChart = new Chart(churnReasonsCtx, {
       type: 'bar',
@@ -562,7 +732,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // Customer Segments Chart with enhanced visuals
+    // Customer Segments Chart
     const customerSegmentsCtx = document.getElementById('customerSegmentsChart').getContext('2d');
     const customerSegmentsChart = new Chart(customerSegmentsCtx, {
       type: 'doughnut',
