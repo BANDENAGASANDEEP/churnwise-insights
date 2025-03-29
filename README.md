@@ -1,69 +1,87 @@
-# Welcome to your Lovable project
 
-## Project info
+# ChurnWise Insights Project
 
-**URL**: https://lovable.dev/projects/aa36aed9-cce4-4756-9bba-96d18b682216
+This project consists of a FastAPI backend and a React frontend for telecom customer churn prediction and analysis.
 
-## How can I edit this code?
+## Project Structure
 
-There are several ways of editing your application.
+```
+ChurnWise-Insights/
+│
+├── backend/              # Backend FastAPI code
+│   ├── main.py           # Main API file
+│   ├── .gitignore        # Backend gitignore
+│   └── README.md         # Backend setup instructions
+│
+├── churnwise-insights-main/  # Data files 
+│   ├── users.csv             # User data (created automatically)
+│   ├── Telco-Customer-Churn.csv  # Telecom customer data
+│   ├── random_forest_best_model.pkl  # ML model
+│   └── customer_churn_store.json  # Chatbot document store
+│
+├── src/                 # Frontend React code
+│   ├── components/      # React components
+│   ├── pages/           # Page components
+│   ├── services/        # API services
+│   └── ...              # Other frontend files
+│
+└── ... (other project files)
+```
 
-**Use Lovable**
+## Setup Instructions
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/aa36aed9-cce4-4756-9bba-96d18b682216) and start prompting.
+### 1. Backend Setup
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Create required data folders:
+```bash
+mkdir -p churnwise-insights-main
+```
 
-**Use your preferred IDE**
+2. Place your ML model and data files in the `churnwise-insights-main` folder:
+   - Telco-Customer-Churn.csv
+   - random_forest_best_model.pkl
+   - customer_churn_store.json
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+3. Set up Python virtual environment:
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+4. Install Python dependencies:
+```bash
+pip install fastapi uvicorn pandas scikit-learn farm-haystack passlib python-multipart
+```
 
-Follow these steps:
+5. Start the backend server:
+```bash
+python main.py
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+The backend API will be running at: http://localhost:8000
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 2. Frontend Setup
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. Install Node.js dependencies:
+```bash
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+2. Start the frontend development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The frontend will be available at: http://localhost:8080
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Usage
 
-**Use GitHub Codespaces**
+1. Open your browser and navigate to http://localhost:8080
+2. Use the login page to sign in (register if needed)
+3. Explore the dashboard with churn prediction and analytics features
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## API Documentation
 
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/aa36aed9-cce4-4756-9bba-96d18b682216) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+- API docs: http://localhost:8000/docs
+- Alternative API docs: http://localhost:8000/redoc
