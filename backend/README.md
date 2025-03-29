@@ -10,12 +10,15 @@ This is the backend API for the ChurnWise Insights application. It provides endp
 mkdir -p churnwise-insights-main
 ```
 
-### 2. Place your data files
+### 2. Data Files Information
 You need the following files in the churnwise-insights-main folder:
-- users.csv (will be created automatically if it doesn't exist)
-- Telco-Customer-Churn.csv
-- random_forest_best_model.pkl
-- customer_churn_store.json
+
+- **users.csv**: Will be created automatically if it doesn't exist.
+- **Telco-Customer-Churn.csv**: Contains telecom customer data.
+- **random_forest_best_model.pkl**: Pre-trained ML model for churn prediction.
+- **customer_churn_store.json**: Contains data for the AI chatbot.
+
+**Note:** If any of these files are missing, the backend will use dummy data for testing purposes. For production use, make sure to place the actual data files in the folder.
 
 ### 3. Create a virtual environment
 ```
@@ -38,3 +41,22 @@ The API will be available at http://localhost:8000
 ### API Documentation
 - API docs: http://localhost:8000/docs
 - Alternative docs: http://localhost:8000/redoc
+- Health check: http://localhost:8000/health
+
+## API Endpoints
+
+### Authentication
+- POST `/register` - Register a new user
+- POST `/token` - Login and get access token
+
+### Churn Prediction
+- POST `/predict` - Predict churn for given customer features
+
+### Business Analytics
+- GET `/dashboard-data` - Get summary statistics and churn distribution
+
+### Customer Profiles
+- GET `/customer-profile?customer_id=<id>` - Get detailed customer information
+
+### AI Chatbot
+- GET `/chat?query=<text>` - Get AI responses to customer service queries
