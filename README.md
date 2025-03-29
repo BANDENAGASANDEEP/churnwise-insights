@@ -73,11 +73,11 @@ npm install
 npm run dev
 ```
 
-The frontend will be available at: http://localhost:8080
+The frontend will be available at: http://localhost:5173
 
 ## Usage
 
-1. Open your browser and navigate to http://localhost:8080
+1. Open your browser and navigate to http://localhost:5173
 2. Use the login page to sign in (register if needed)
 3. Explore the dashboard with churn prediction and analytics features
 

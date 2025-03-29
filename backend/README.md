@@ -30,7 +30,6 @@ pip install fastapi uvicorn pandas scikit-learn farm-haystack passlib python-mul
 
 ### 5. Start the backend server
 ```
-cd backend
 python main.py
 ```
 
