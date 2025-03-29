@@ -3,42 +3,47 @@
 
 This is the backend API for the ChurnWise Insights application. It provides endpoints for user authentication, churn prediction, business analytics, and an AI chatbot.
 
+## Required Data Files
+
+Before running the backend, you MUST place the following files in the `churnwise-insights-main` folder (at the root of the project, not inside the backend folder):
+
+1. **Telco-Customer-Churn.csv**: Dataset with telecom customer information
+2. **random_forest_best_model.pkl**: Pre-trained machine learning model for churn prediction
+3. **customer_churn_store.json**: Document store for the AI chatbot
+
+Without these files, the application will not start.
+
 ## Setup Instructions
 
-### 1. Create the required folders
-```
+### 1. Create the required data folder
+```bash
 mkdir -p churnwise-insights-main
 ```
 
-### 2. Data Files Information
-You need the following files in the churnwise-insights-main folder:
-
-- **users.csv**: Will be created automatically if it doesn't exist.
-- **Telco-Customer-Churn.csv**: Contains telecom customer data.
-- **random_forest_best_model.pkl**: Pre-trained ML model for churn prediction.
-- **customer_churn_store.json**: Contains data for the AI chatbot.
-
-**Note:** If any of these files are missing, the backend will use dummy data for testing purposes. For production use, make sure to place the actual data files in the folder.
+### 2. Place the required data files in the churnwise-insights-main folder
+- Telco-Customer-Churn.csv
+- random_forest_best_model.pkl
+- customer_churn_store.json
 
 ### 3. Create a virtual environment
-```
+```bash
 python -m venv venv
 source venv/bin/activate  # On Windows, use: venv\Scripts\activate
 ```
 
 ### 4. Install dependencies
-```
+```bash
 pip install fastapi uvicorn pandas scikit-learn farm-haystack passlib python-multipart
 ```
 
 ### 5. Start the backend server
-```
+```bash
 python main.py
 ```
 
 The API will be available at http://localhost:8000
 
-### API Documentation
+## API Documentation
 - API docs: http://localhost:8000/docs
 - Alternative docs: http://localhost:8000/redoc
 - Health check: http://localhost:8000/health

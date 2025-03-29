@@ -3,7 +3,6 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from passlib.context import CryptContext
-from fastapi.staticfiles import StaticFiles
 import pandas as pd
 import joblib
 import json
@@ -50,46 +49,20 @@ if os.path.exists(churn_csv_path):
     churn_data = pd.read_csv(churn_csv_path)
     print(f"Loaded telecom churn data from {churn_csv_path}")
 else:
-    # Create dummy data for testing if real data is missing
-    print(f"WARNING: {churn_csv_path} not found. Using dummy data for testing.")
-    # Create minimal dummy data with essential columns
-    churn_data = pd.DataFrame({
-        "customerID": ["TEST-001", "TEST-002", "TEST-003"],
-        "gender": ["Male", "Female", "Male"],
-        "SeniorCitizen": [0, 1, 0],
-        "Partner": ["Yes", "No", "Yes"],
-        "Dependents": ["No", "No", "Yes"],
-        "tenure": [12, 24, 36],
-        "PhoneService": ["Yes", "Yes", "Yes"],
-        "MultipleLines": ["No", "Yes", "No"],
-        "InternetService": ["DSL", "Fiber optic", "No"],
-        "OnlineSecurity": ["Yes", "No", "No"],
-        "OnlineBackup": ["Yes", "No", "No"],
-        "DeviceProtection": ["No", "Yes", "No"],
-        "TechSupport": ["No", "No", "Yes"],
-        "StreamingTV": ["No", "Yes", "No"],
-        "StreamingMovies": ["No", "Yes", "No"],
-        "Contract": ["Month-to-month", "One year", "Two year"],
-        "PaperlessBilling": ["Yes", "Yes", "No"],
-        "PaymentMethod": ["Electronic check", "Mailed check", "Bank transfer (automatic)"],
-        "MonthlyCharges": [29.85, 56.95, 104.80],
-        "TotalCharges": [100.35, 1889.50, 3046.05],
-        "Churn": ["No", "Yes", "No"]
-    })
+    raise FileNotFoundError(f"Required file not found: {churn_csv_path}. Please place it in the churnwise-insights-main folder.")
 
-# Load ML model or create dummy model
+# Load ML model
 if os.path.exists(rf_model_path):
     try:
         rf_model = joblib.load(rf_model_path)
         print(f"Loaded random forest model from {rf_model_path}")
     except Exception as e:
         print(f"Error loading model: {e}")
-        rf_model = None
+        raise FileNotFoundError(f"Error loading model from {rf_model_path}: {e}")
 else:
-    print(f"WARNING: {rf_model_path} not found. Using dummy prediction logic.")
-    rf_model = None
+    raise FileNotFoundError(f"Required model file not found: {rf_model_path}. Please place it in the churnwise-insights-main folder.")
 
-# Load chatbot data or create dummy data
+# Load chatbot data
 if os.path.exists(churn_store_path):
     try:
         with open(churn_store_path, "r") as f:
@@ -98,12 +71,9 @@ if os.path.exists(churn_store_path):
         print(f"Loaded chatbot data from {churn_store_path}")
     except Exception as e:
         print(f"Error loading chatbot data: {e}")
-        # Create dummy documents
-        docs = [Document(content="Dummy chatbot response for testing purposes.", id="1")]
+        raise FileNotFoundError(f"Error loading chatbot data from {churn_store_path}: {e}")
 else:
-    print(f"WARNING: {churn_store_path} not found. Using dummy chatbot data.")
-    # Create dummy documents
-    docs = [Document(content="This is a test response from the chatbot. Please add the customer_churn_store.json file for real responses.", id="1")]
+    raise FileNotFoundError(f"Required chatbot data file not found: {churn_store_path}. Please place it in the churnwise-insights-main folder.")
 
 # Initialize document store and retriever
 document_store = InMemoryDocumentStore(use_bm25=True)
@@ -121,7 +91,7 @@ class User(BaseModel):
 
 # Churn Prediction Request Model
 class ChurnInput(BaseModel):
-    features: List[float]  # Adjust according to your dataset features
+    features: List[float]
 
 # Register user
 @app.post("/register")
@@ -151,15 +121,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 # Churn Prediction API
 @app.post("/predict")
 def predict_churn(input_data: ChurnInput):
-    if rf_model is None:
-        # If model is not available, provide a dummy prediction
-        return {"churn_prediction": 0, "is_dummy": True, "message": "Using dummy prediction (model not found)"}
-    
     try:
         prediction = rf_model.predict([input_data.features])[0]
         return {"churn_prediction": int(prediction)}
     except Exception as e:
-        return {"error": str(e), "is_dummy": True, "churn_prediction": 0}
+        raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
 # Business Analytics API
 @app.get("/dashboard-data")
@@ -181,7 +147,7 @@ def get_dashboard_data():
             "churn_rate": churn_rate
         }
     except Exception as e:
-        return {"error": str(e), "message": "Error generating dashboard data"}
+        raise HTTPException(status_code=500, detail=f"Error generating dashboard data: {str(e)}")
 
 # Customer Profile API
 @app.get("/customer-profile")
@@ -191,20 +157,24 @@ def get_customer_profile(customer_id: str):
         if customer.empty:
             raise HTTPException(status_code=404, detail="Customer not found")
         return customer.to_dict(orient="records")[0]
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        if str(e) == "404: Customer not found":
-            raise HTTPException(status_code=404, detail="Customer not found")
-        return {"error": str(e), "message": "Error retrieving customer profile"}
+        raise HTTPException(status_code=500, detail=f"Error retrieving customer profile: {str(e)}")
 
 # AI Chatbot API
 @app.get("/chat")
 def chat(query: str):
     try:
         results = retriever.retrieve(query, top_k=3)
-        responses = [res.content for res in results] if results else ["I'm sorry, I couldn't find relevant information."]
+        responses = [res.content for res in results]
+        if not responses:
+            raise HTTPException(status_code=404, detail="No relevant information found")
         return {"response": responses}
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        return {"response": [f"Error: {str(e)}. Please check if the chatbot data is properly loaded."]}
+        raise HTTPException(status_code=500, detail=f"Chatbot error: {str(e)}")
 
 # Health check endpoint
 @app.get("/health")

@@ -13,11 +13,11 @@ ChurnWise-Insights/
 │   ├── .gitignore        # Backend gitignore
 │   └── README.md         # Backend setup instructions
 │
-├── churnwise-insights-main/  # Data files 
+├── churnwise-insights-main/  # Required data files - MUST CREATE THIS FOLDER
 │   ├── users.csv             # User data (created automatically)
-│   ├── Telco-Customer-Churn.csv  # Telecom customer data
-│   ├── random_forest_best_model.pkl  # ML model
-│   └── customer_churn_store.json  # Chatbot document store
+│   ├── Telco-Customer-Churn.csv  # REQUIRED: Telecom customer data
+│   ├── random_forest_best_model.pkl  # REQUIRED: ML model
+│   └── customer_churn_store.json  # REQUIRED: Chatbot document store
 │
 ├── src/                 # Frontend React code
 │   ├── components/      # React components
@@ -28,29 +28,29 @@ ChurnWise-Insights/
 └── ... (other project files)
 ```
 
-## Testing vs. Production Data
+## Required Data Files
 
-The application can run in two modes:
+Before running the application, you MUST have the following files in place:
 
-1. **Testing Mode**: If the required data files are missing, the backend will automatically use dummy data. This is useful for initial setup and testing.
+1. **Telco-Customer-Churn.csv**: Dataset with telecom customer information
+2. **random_forest_best_model.pkl**: Pre-trained machine learning model for churn prediction
+3. **customer_churn_store.json**: Document store for the AI chatbot
 
-2. **Production Mode**: For real predictions and analytics, you need to place the actual data files in the `churnwise-insights-main` folder.
+These files need to be placed in the `churnwise-insights-main` folder at the root of the project.
 
 ## Setup Instructions
 
 ### 1. Backend Setup
 
-1. Create required data folders:
+1. Create the required data folder:
 ```bash
 mkdir -p churnwise-insights-main
 ```
 
-2. For production use, place your ML model and data files in the `churnwise-insights-main` folder:
+2. Place the required data files in the `churnwise-insights-main` folder:
    - Telco-Customer-Churn.csv
    - random_forest_best_model.pkl
    - customer_churn_store.json
-
-   Note: The application will work with dummy data if these files are missing.
 
 3. Set up Python virtual environment:
 ```bash
